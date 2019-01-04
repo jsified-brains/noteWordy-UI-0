@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
-import UserSignIn from './components/UserSignIn';
+import { UserSignIn } from './components';
 
 type Props = {};
 export default class App extends Component<Props> {
