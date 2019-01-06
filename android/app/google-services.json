@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "932683245392",
+    "firebase_url": "https://notewordy-9ff07.firebaseio.com",
+    "project_id": "notewordy-9ff07",
+    "storage_bucket": "notewordy-9ff07.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:932683245392:android:e4f538dba9d09724",
+        "android_client_info": {
+          "package_name": "com.jsifiedbrains.notewordy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "932683245392-duauuakhfh9d38csaaa4e1sdvhcit0ks.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jsifiedbrains.notewordy",
+            "certificate_hash": "1f8a75d4e58b65a608bf44d5ca7406c3ac24c74b"
+          }
+        },
+        {
+          "client_id": "932683245392-6ial36r68sb6imou1uisvjaj4lkck44c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2ivPm2loOv8EDe5y9r5YNanvZdu-zpO8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "932683245392-6ial36r68sb6imou1uisvjaj4lkck44c.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "932683245392-plkicum4gvpd9hficqbfsbvrvgclnqi3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.jsifiedbrains.notewordy"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
