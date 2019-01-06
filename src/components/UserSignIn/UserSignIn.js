@@ -10,6 +10,7 @@ import {
 import { GoogleSignin, GoogleSigninButton, statusCodes } from 'react-native-google-signin';
 
 export default class UserSignIn extends Component  {
+    
     state = {
         signIn_inProgress: false,
         isUserSignedIn: false,
@@ -20,10 +21,31 @@ export default class UserSignIn extends Component  {
     constructor() {
         super();
         GoogleSignin.configure();
+        this.screenFocusSubscription = {};
     }
 
     componentDidMount() {
-        this.isUserSignedIn();
+        this.subscribeToDidFocus();
+    }
+
+    // subscribe to 'didFocus' event of react-navigation
+    // if user comes back to this component using back button, call this.isUserSignedIn()
+    // When navigating back to a screen, componentDidMount won't be triggered because
+    // react-navigation keeps it in stack.
+    // (we configured StackNavigation with header: null/headerMode: 'none'.
+    // With no header, back button on header is not going to be visible.
+    // However, on Android, user can press the hard back button)
+    subscribeToDidFocus = () => {
+        this.screenFocusSubscription = this.props.navigation.addListener(
+            'didFocus',
+            payload => {
+              this.isUserSignedIn();
+            }
+        );
+    }
+    
+    componentWillUnmount() {
+        this.screenFocusSubscription.remove();
     }
 
     render() {
@@ -34,15 +56,6 @@ export default class UserSignIn extends Component  {
                 </View>
             );
         } else {
-            if (this.state.isUserSignedIn && this.state.loggedInUser && this.state.loggedInUser.user) {
-                return (
-                    <View>
-                        <Text>Welcome {this.state.loggedInUser.user.name} </Text>
-                        <Button title='Log out' onPress={this.signOut}/>
-                    </View>
-                );
-            }
-
             return (
                 <View>
                     <Text>Sign in with Google</Text>
@@ -67,6 +80,7 @@ export default class UserSignIn extends Component  {
             await GoogleSignin.hasPlayServices();
             const loggedInUser = await GoogleSignin.signIn();
             this.setState({ loggedInUser,isUserSignedIn: true,  isSigninInProgress: false });
+            this.props.navigation.navigate('Home');
         } catch (error) {
             this.handleSignInError(error);
         }
@@ -80,6 +94,7 @@ export default class UserSignIn extends Component  {
         const isUserSignedIn = await GoogleSignin.isSignedIn();
         if (isUserSignedIn) {
             await this.getCurrentUserInfo();
+            this.props.navigation.navigate('Home');
         };
         this.setState({ isUserSignedIn, checkingSignedInStatus: false });
     };

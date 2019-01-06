@@ -1,23 +1,10 @@
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
-import { UserSignIn } from './components';
+import { AppNavigationContainer } from './routes/AppStackNavigator';
 
-type Props = {};
-export default class App extends Component<Props> {
+export default class App extends React.Component {
   render() {
     return (
-      <View style={styles.container}>
-        <UserSignIn />
-      </View>
+        <AppNavigationContainer />
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  }
-});
