@@ -16,6 +16,9 @@
     "react-native-google-signin": "^1.0.2",
     "react-native-responsive-fontsize": "^0.1.7",
     "react-navigation": "^3.0.9",
+    "react-redux": "^6.0.0",
+    "redux": "^4.0.1",
+    "redux-logger": "^3.0.6",
     "yarn": "^1.12.3"
   },
   "devDependencies": {
