@@ -12,9 +12,7 @@ import { GoogleSignin, GoogleSigninButton, statusCodes } from 'react-native-goog
 export default class UserSignIn extends Component  {
     
     state = {
-        signIn_inProgress: false,
-        isUserSignedIn: false,
-        loggedInUser: {},
+        isSigninInProgress: false,
         checkingSignedInStatus: true
     }
 
@@ -70,33 +68,53 @@ export default class UserSignIn extends Component  {
         }
     }
 
-    
     /**
      * @name onSignInPress
      */
     onSignInPress = async () => {
         try {
             this.setState({isSigninInProgress: true});
-            await GoogleSignin.hasPlayServices();
-            const loggedInUser = await GoogleSignin.signIn();
-            this.setState({ loggedInUser,isUserSignedIn: true,  isSigninInProgress: false });
+
+            // initiate google sign-in process
+            await this.getGooglePlayServices();
+            const googleAuthResponse = await GoogleSignin.signIn();
+
+            this.dispatchOnSignIn(googleAuthResponse);
+
+            this.setState({ isSigninInProgress: false });
+
+            // navigate user to Home page on successful login
             this.props.navigation.navigate('Home');
         } catch (error) {
+            this.setState({ isSigninInProgress: false });
             this.handleSignInError(error);
         }
     };
 
     /**
+     * @name dispatchOnSignIn
+     */
+    dispatchOnSignIn = (googleAuthResponse) => {
+        this.props.UserSignIn_onSuccess({
+            googleAuthToken:{ 
+                id_token: googleAuthResponse.idToken, 
+                expires_at: googleAuthResponse.accessTokenExpirationDate
+            },
+            googleUser: googleAuthResponse.user
+        });
+    }
+
+    /**
      * @name isUserSignedIn
      */
     isUserSignedIn = async () => {
-        this.setState ({ isUserSignedIn: false, checkingSignedInStatus: true });
+        this.setState ({ checkingSignedInStatus: true });
         const isUserSignedIn = await GoogleSignin.isSignedIn();
         if (isUserSignedIn) {
             await this.getCurrentUserInfo();
-            this.props.navigation.navigate('Home');
-        };
-        this.setState({ isUserSignedIn, checkingSignedInStatus: false });
+        } else {
+            this.setState({ checkingSignedInStatus: false });
+        }
     };
     
     /**
@@ -104,10 +122,12 @@ export default class UserSignIn extends Component  {
      */
     getCurrentUserInfo = async () => {
         try {
-            const loggedInUser = await GoogleSignin.signInSilently();
-            this.setState({ loggedInUser });
+            const googleAuthResponse = await GoogleSignin.signInSilently();
+            this.dispatchOnSignIn(googleAuthResponse);
+            this.props.navigation.navigate('Home');
         } catch (error) {
-            this.setState({ loggedInUser: {} });
+            // if error figuring out whether user is signedIn or not, better reset it to logged out
+            this.signOut();
         }
     };
 
@@ -118,9 +138,10 @@ export default class UserSignIn extends Component  {
         try {
           await GoogleSignin.revokeAccess();
           await GoogleSignin.signOut();
-          this.setState({ isUserSignedIn: false, loggedInUser: null }); // Remember to remove the user from your app's state as well
         } catch (error) {
           console.error(error);
+        } finally {
+          this.props.UserSignIn_logOut({});
         }
     };
 
@@ -129,16 +150,19 @@ export default class UserSignIn extends Component  {
      * @param error the SignIn error object
      */
     handleSignInError = async (error) => {
-        if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-            this.showSignInError('User cancelled the login flow.');
-        } else if (error.code === statusCodes.IN_PROGRESS) {
-            this.showSignInError('Sign in is in progress.');
-        } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-            await this.getGooglePlayServices();
+        if (error.code) {
+            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+                this.showSignInError('User cancelled the login flow.');
+            } else if (error.code === statusCodes.IN_PROGRESS) {
+                this.showSignInError('Sign in is in progress.');
+            } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+                await this.getGooglePlayServices();
+            } else {
+                this.showSignInError(JSON.stringify(error));
+            } 
         } else {
             this.showSignInError(JSON.stringify(error));
         }
-        this.setState({ isSigninInProgress: false });
     }
 
     /**
@@ -158,6 +182,10 @@ export default class UserSignIn extends Component  {
      * @param alertMessage - message to be shown on alert box
      */
     showSignInError = (alertMessage) => {
+        this.props.UserSignIn_onError({
+            signInFailedReason: alertMessage
+        });
+
         Alert.alert(
             'Google Signin Error',
             alertMessage,
